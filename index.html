@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ESP32数据展示</title>
+    <title>ESP32数据监控</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,12 +43,6 @@
             cursor: pointer;
             margin-bottom: 15px;
         }
-        .error {
-            color: red;
-            padding: 10px;
-            background-color: #ffe6e6;
-            border-radius: 4px;
-        }
         .stats {
             display: flex;
             gap: 20px;
@@ -80,44 +74,36 @@
     <div id="data"></div>
     
     <script>
-        // 读取GitHub Actions生成的静态数据文件
-        const DATA_URL = './data.json';
-        
-        async function loadData() {
-            try {
-                document.getElementById('data').innerHTML = '<p>加载中...</p>';
-                
-                // 添加时间戳防止缓存
-                const url = DATA_URL + '?t=' + new Date().getTime();
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error(`加载失败: ${response.status} ${response.statusText}`);
+        // 模拟数据 - 之后可以替换为从Gist获取
+        const mockData = {
+            lastUpdated: new Date().toISOString(),
+            messages: [
+                {
+                    timestamp: "2024-01-01 10:00:00",
+                    data: {
+                        device_id: "ESP32_TEST",
+                        temperature: 25.6,
+                        humidity: 60.2,
+                        status: "online"
+                    }
                 }
-                
-                const data = await response.json();
-                
-                // 更新统计信息
-                document.getElementById('lastUpdated').textContent = 
-                    new Date(data.lastUpdated).toLocaleString();
-                document.getElementById('totalCount').textContent = data.messages.length;
-                
-                if (data.messages.length > 0) {
-                    document.getElementById('latestTime').textContent = 
-                        data.messages[0].timestamp;
-                }
-                
-                displayData(data.messages);
-            } catch (error) {
-                console.error('加载数据失败:', error);
-                document.getElementById('data').innerHTML = 
-                    `<div class="error">❌ 加载失败: ${error.message}</div>`;
+            ]
+        };
+
+        function loadData() {
+            // 暂时使用模拟数据
+            const data = mockData;
+            
+            document.getElementById('lastUpdated').textContent = new Date(data.lastUpdated).toLocaleString();
+            document.getElementById('totalCount').textContent = data.messages.length;
+            if (data.messages.length > 0) {
+                document.getElementById('latestTime').textContent = data.messages[0].timestamp;
             }
+            displayData(data.messages);
         }
         
         function displayData(messages) {
             const container = document.getElementById('data');
-            
             if (messages.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">暂无数据，等待ESP32发送数据...</div>';
                 return;
@@ -141,10 +127,7 @@
             return html;
         }
         
-        // 页面加载时自动获取数据
         document.addEventListener('DOMContentLoaded', loadData);
-        
-        // 每30秒自动刷新
         setInterval(loadData, 30000);
     </script>
 </body>
