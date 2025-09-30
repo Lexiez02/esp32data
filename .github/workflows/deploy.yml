@@ -2,61 +2,93 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      - name: Checkout
+        uses: actions/checkout@v4
         
-    - name: Fetch data from Gist
-      env:
-        GIST_ID: ${{ secrets.GIST_ID }}
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        # 从Gist获取数据
-        curl -H "Authorization: token $GH_TOKEN" \
-             -H "Accept: application/vnd.github.v3+json" \
-             "https://api.github.com/gists/$GIST_ID" > gist_data.json
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
         
-        # 处理数据
-        node -e "
-        const fs = require('fs');
-        try {
-          const gist = JSON.parse(fs.readFileSync('gist_data.json', 'utf8'));
-          const filename = Object.keys(gist.files)[0];
-          const messages = JSON.parse(gist.files[filename].content);
-          
-          const frontendData = {
-            lastUpdated: new Date().toISOString(),
-            messages: messages.slice(0, 50)
-          };
-          
-          fs.writeFileSync('data.json', JSON.stringify(frontendData, null, 2));
-          console.log('成功获取 ' + messages.length + ' 条数据');
-        } catch (error) {
-          console.error('处理数据失败:', error);
-          // 创建空数据文件
-          const emptyData = {
-            lastUpdated: new Date().toISOString(),
-            messages: []
-          };
-          fs.writeFileSync('data.json', JSON.stringify(emptyData, null, 2));
-          console.log('创建空数据文件');
+      - name: Create HTML file
+        run: |
+          cat > index.html << 'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32数据监控</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-        "
-        
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #28a745;
+            font-size: 20px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📡 ESP32数据监控系统</h1>
+        <div class="success">✅ 部署成功！GitHub Pages 工作正常</div>
+        <div class="info">
+            <p><strong>部署时间：</strong> <span id="time"></span></p>
+            <p><strong>网站地址：</strong> https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/</p>
+        </div>
+        <p>下一步：配置ESP32数据接收功能</p>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        // 每30秒刷新时间
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleString();
+        }, 30000);
+    </script>
+</body>
+</html>
+HTML
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
