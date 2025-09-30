@@ -68,15 +68,14 @@ jobs:
         <div class="success">✅ 部署成功！GitHub Pages 工作正常</div>
         <div class="info">
             <p><strong>部署时间：</strong> <span id="time"></span></p>
-            <p><strong>网站地址：</strong> https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/</p>
+            <p><strong>状态：</strong> 基础网站已就绪</p>
         </div>
         <p>下一步：配置ESP32数据接收功能</p>
     </div>
 
     <script>
         document.getElementById('time').textContent = new Date().toLocaleString();
-        // 每30秒刷新时间
-        setInterval(() => {
+        setInterval(function() {
             document.getElementById('time').textContent = new Date().toLocaleString();
         }, 30000);
     </script>
