@@ -15,27 +15,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Create HTML file
+      - name: Check if index.html exists
+        id: check_files
+        run: |
+          if [ -f "index.html" ]; then
+            echo "index.html exists, skipping creation"
+            echo "html_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "index.html does not exist, creating basic version"
+            echo "html_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create basic HTML if missing
+        if: steps.check_files.outputs.html_exists == 'false'
         run: |
           echo '<!DOCTYPE html>' > index.html
           echo '<html>' >> index.html
-          echo '<head>' >> index.html
-          echo '<title>ESP32数据监控</title>' >> index.html
-          echo '<style>' >> index.html
-          echo 'body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }' >> index.html
-          echo '.header { background: #f8f9fa; padding: 20px; border-radius: 10px; }' >> index.html
-          echo '.success { color: green; font-size: 18px; }' >> index.html
-          echo '</style>' >> index.html
-          echo '</head>' >> index.html
+          echo '<head><title>ESP32数据监控</title></head>' >> index.html
           echo '<body>' >> index.html
-          echo '<div class="header">' >> index.html
-          echo '<h1>📡 ESP32数据系统</h1>' >> index.html
-          echo '<p class="success">✅ 网站部署成功</p>' >> index.html
-          echo '<p>时间: <span id="time"></span></p>' >> index.html
-          echo '</div>' >> index.html
-          echo '<script>' >> index.html
-          echo 'document.getElementById("time").textContent = new Date().toLocaleString();' >> index.html
-          echo '</script>' >> index.html
+          echo '<h1>ESP32数据系统</h1>' >> index.html
+          echo '<p>请创建完整的index.html文件</p>' >> index.html
           echo '</body>' >> index.html
           echo '</html>' >> index.html
 
