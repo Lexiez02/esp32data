@@ -41,7 +41,6 @@ jobs:
             console.log('成功获取 ' + messages.length + ' 条数据');
           } catch (error) {
             console.error('处理数据失败:', error);
-            // 创建空数据文件
             const emptyData = {
               lastUpdated: new Date().toISOString(),
               messages: []
@@ -51,132 +50,77 @@ jobs:
           }
           "
 
-      - name: Create HTML with data display
+      - name: Create HTML file step by step
         run: |
-          cat > index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ESP32数据监控</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .message {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            background-color: white;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-        }
-        .timestamp {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-        .data-item {
-            margin: 3px 0;
-            font-family: monospace;
-        }
-        .refresh-btn {
-            padding: 8px 16px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin: 15px 0;
-        }
-        .stat-item {
-            background: #e9ecef;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        .last-updated {
-            color: #6c757d;
-            font-size: 0.8em;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>📡 ESP32数据接收历史</h1>
-        <div class="stats">
-            <div class="stat-item">总数据量: <span id="totalCount">0</span> 条</div>
-            <div class="stat-item">最新数据: <span id="latestTime">-</span></div>
-        </div>
-        <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
-        <div class="last-updated">最后更新: <span id="lastUpdated">-</span></div>
-    </div>
-    <div id="data"></div>
-    
-    <script>
-        const DATA_URL = './data.json';
-        
-        async function loadData() {
-            try {
-                document.getElementById('data').innerHTML = '<p>加载中...</p>';
-                const url = DATA_URL + '?t=' + new Date().getTime();
-                const response = await fetch(url);
-                
-                if (!response.ok) throw new Error(`加载失败: ${response.status}`);
-                
-                const data = await response.json();
-                document.getElementById('lastUpdated').textContent = new Date(data.lastUpdated).toLocaleString();
-                document.getElementById('totalCount').textContent = data.messages.length;
-                if (data.messages.length > 0) {
-                    document.getElementById('latestTime').textContent = data.messages[0].timestamp;
-                }
-                displayData(data.messages);
-            } catch (error) {
-                document.getElementById('data').innerHTML = '<div class="error">❌ 加载失败: ' + error.message + '</div>';
-            }
-        }
-        
-        function displayData(messages) {
-            const container = document.getElementById('data');
-            if (messages.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">暂无数据，等待ESP32发送数据...</div>';
-                return;
-            }
-            container.innerHTML = messages.map(msg => 
-                '<div class="message"><div class="timestamp">📅 ' + msg.timestamp + '</div><div class="data-content">' + formatData(msg.data) + '</div></div>'
-            ).join('');
-        }
-        
-        function formatData(data) {
-            let html = '';
-            for (const [key, value] of Object.entries(data)) {
-                html += '<div class="data-item"><strong>' + key + ':</strong> ' + value + '</div>';
-            }
-            return html;
-        }
-        
-        document.addEventListener('DOMContentLoaded', loadData);
-        setInterval(loadData, 30000);
-    </script>
-</body>
-</html>
-EOF
+          # 逐步创建HTML文件，避免多行文本问题
+          echo '<!DOCTYPE html>' > index.html
+          echo '<html>' >> index.html
+          echo '<head>' >> index.html
+          echo '<title>ESP32数据监控</title>' >> index.html
+          echo '<style>' >> index.html
+          echo 'body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }' >> index.html
+          echo '.header { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }' >> index.html
+          echo '.message { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; background-color: white; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }' >> index.html
+          echo '.timestamp { color: #666; font-size: 0.9em; margin-bottom: 8px; }' >> index.html
+          echo '.data-item { margin: 3px 0; font-family: monospace; }' >> index.html
+          echo '.refresh-btn { padding: 8px 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 15px; }' >> index.html
+          echo '.stats { display: flex; gap: 20px; margin: 15px 0; }' >> index.html
+          echo '.stat-item { background: #e9ecef; padding: 8px 12px; border-radius: 4px; font-size: 0.9em; }' >> index.html
+          echo '.last-updated { color: #6c757d; font-size: 0.8em; margin-top: 10px; }' >> index.html
+          echo '</style>' >> index.html
+          echo '</head>' >> index.html
+          echo '<body>' >> index.html
+          echo '<div class="header">' >> index.html
+          echo '<h1>📡 ESP32数据接收历史</h1>' >> index.html
+          echo '<div class="stats">' >> index.html
+          echo '<div class="stat-item">总数据量: <span id="totalCount">0</span> 条</div>' >> index.html
+          echo '<div class="stat-item">最新数据: <span id="latestTime">-</span></div>' >> index.html
+          echo '</div>' >> index.html
+          echo '<button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>' >> index.html
+          echo '<div class="last-updated">最后更新: <span id="lastUpdated">-</span></div>' >> index.html
+          echo '</div>' >> index.html
+          echo '<div id="data"></div>' >> index.html
+          echo '<script>' >> index.html
+          echo 'const DATA_URL = "./data.json";' >> index.html
+          echo 'async function loadData() {' >> index.html
+          echo '  try {' >> index.html
+          echo '    document.getElementById("data").innerHTML = "<p>加载中...</p>";' >> index.html
+          echo '    const url = DATA_URL + "?t=" + new Date().getTime();' >> index.html
+          echo '    const response = await fetch(url);' >> index.html
+          echo '    if (!response.ok) throw new Error("加载失败: " + response.status);' >> index.html
+          echo '    const data = await response.json();' >> index.html
+          echo '    document.getElementById("lastUpdated").textContent = new Date(data.lastUpdated).toLocaleString();' >> index.html
+          echo '    document.getElementById("totalCount").textContent = data.messages.length;' >> index.html
+          echo '    if (data.messages.length > 0) {' >> index.html
+          echo '      document.getElementById("latestTime").textContent = data.messages[0].timestamp;' >> index.html
+          echo '    }' >> index.html
+          echo '    displayData(data.messages);' >> index.html
+          echo '  } catch (error) {' >> index.html
+          echo '    document.getElementById("data").innerHTML = "<div style=\"color: red; padding: 10px;\">❌ 加载失败: " + error.message + "</div>";' >> index.html
+          echo '  }' >> index.html
+          echo '}' >> index.html
+          echo 'function displayData(messages) {' >> index.html
+          echo '  const container = document.getElementById("data");' >> index.html
+          echo '  if (messages.length === 0) {' >> index.html
+          echo '    container.innerHTML = "<div style=\"text-align: center; padding: 40px; color: #666;\">暂无数据，等待ESP32发送数据...</div>";' >> index.html
+          echo '    return;' >> index.html
+          echo '  }' >> index.html
+          echo '  container.innerHTML = messages.map(msg =>' >> index.html
+          echo '    "<div class=\"message\"><div class=\"timestamp\">📅 " + msg.timestamp + "</div><div class=\"data-content\">" + formatData(msg.data) + "</div></div>"' >> index.html
+          echo '  ).join("");' >> index.html
+          echo '}' >> index.html
+          echo 'function formatData(data) {' >> index.html
+          echo '  let html = "";' >> index.html
+          echo '  for (const [key, value] of Object.entries(data)) {' >> index.html
+          echo '    html += "<div class=\"data-item\"><strong>" + key + ":</strong> " + value + "</div>";' >> index.html
+          echo '  }' >> index.html
+          echo '  return html;' >> index.html
+          echo '}' >> index.html
+          echo 'document.addEventListener("DOMContentLoaded", loadData);' >> index.html
+          echo 'setInterval(loadData, 30000);' >> index.html
+          echo '</script>' >> index.html
+          echo '</body>' >> index.html
+          echo '</html>' >> index.html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
