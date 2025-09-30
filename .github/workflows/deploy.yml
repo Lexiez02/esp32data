@@ -1,17 +1,51 @@
 name: Deploy ESP32 Site
+
 on:
   push:
     branches: ["main"]
+
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Create HTML
-        run: echo '<h1>ESP32数据系统</h1><p>✅ 运行正常</p>' > index.html
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        
+      - name: Create HTML file
+        run: |
+          echo '<!DOCTYPE html>' > index.html
+          echo '<html>' >> index.html
+          echo '<head>' >> index.html
+          echo '<title>ESP32数据监控</title>' >> index.html
+          echo '<style>' >> index.html
+          echo 'body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }' >> index.html
+          echo '.header { background: #f8f9fa; padding: 20px; border-radius: 10px; }' >> index.html
+          echo '.success { color: green; font-size: 18px; }' >> index.html
+          echo '</style>' >> index.html
+          echo '</head>' >> index.html
+          echo '<body>' >> index.html
+          echo '<div class="header">' >> index.html
+          echo '<h1>📡 ESP32数据系统</h1>' >> index.html
+          echo '<p class="success">✅ 网站部署成功</p>' >> index.html
+          echo '<p>时间: <span id="time"></span></p>' >> index.html
+          echo '</div>' >> index.html
+          echo '<script>' >> index.html
+          echo 'document.getElementById("time").textContent = new Date().toLocaleString();' >> index.html
+          echo '</script>' >> index.html
+          echo '</body>' >> index.html
+          echo '</html>' >> index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          path: .
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
