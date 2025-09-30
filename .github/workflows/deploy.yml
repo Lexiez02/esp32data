@@ -1,20 +1,15 @@
-name: Deploy to GitHub Pages
+name: Deploy ESP32 Site
 
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
 
 permissions:
-  contents: read
   pages: write
   id-token: write
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,68 +17,35 @@ jobs:
         
       - name: Create HTML file
         run: |
-          cat << 'EOF' > index.html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ESP32数据监控</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .success {
-            color: #28a745;
-            font-size: 20px;
-            margin: 20px 0;
-        }
-        .info {
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>📡 ESP32数据监控系统</h1>
-        <div class="success">✅ 部署成功！GitHub Pages 工作正常</div>
-        <div class="info">
-            <p><strong>部署时间：</strong> <span id="time"></span></p>
-            <p><strong>状态：</strong> 基础网站已就绪</p>
-        </div>
-        <p>下一步：配置ESP32数据接收功能</p>
-    </div>
-
-    <script>
-        document.getElementById('time').textContent = new Date().toLocaleString();
-        setInterval(function() {
-            document.getElementById('time').textContent = new Date().toLocaleString();
-        }, 30000);
-    </script>
-</body>
-</html>
-EOF
+          echo '<!DOCTYPE html>' > index.html
+          echo '<html>' >> index.html
+          echo '<head>' >> index.html
+          echo '<title>ESP32数据监控</title>' >> index.html
+          echo '<style>' >> index.html
+          echo 'body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }' >> index.html
+          echo '.header { background: #f8f9fa; padding: 20px; border-radius: 10px; }' >> index.html
+          echo '.success { color: green; font-size: 18px; }' >> index.html
+          echo '</style>' >> index.html
+          echo '</head>' >> index.html
+          echo '<body>' >> index.html
+          echo '<div class="header">' >> index.html
+          echo '<h1>📡 ESP32数据系统</h1>' >> index.html
+          echo '<p class="success">✅ 网站部署成功</p>' >> index.html
+          echo '<p>时间: <span id="time"></span></p>' >> index.html
+          echo '</div>' >> index.html
+          echo '<script>' >> index.html
+          echo 'document.getElementById("time").textContent = new Date().toLocaleString();' >> index.html
+          echo '</script>' >> index.html
+          echo '</body>' >> index.html
+          echo '</html>' >> index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v1
         with:
           path: .
-
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v1
+        
