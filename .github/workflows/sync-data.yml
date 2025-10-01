@@ -30,6 +30,5 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data.json
-          git diff --staged --quiet || git commit -m "Update ESP32 data"
-          git push
+          git add -f data.json  # 使用 -f 强制添加被忽略的文件
+          git diff --staged --quiet || (git commit -m "Update ESP32 data" && git push)
