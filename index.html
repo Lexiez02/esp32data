@@ -76,35 +76,33 @@
 
     <script>
         const GIST_ID = "ea2c818f3422732c5ea078a4ec051df4";
-        const GIST_URL = `https://api.github.com/gists/${GIST_ID}`;
         
-        // 简单的频率限制
-        let requestCount = 0;
-        setInterval(() => requestCount = 0, 60000); // 每分钟重置计数器
+        function loadData() {
+            // 创建iframe来加载代理页面
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = `./proxy.html?gist_id=${GIST_ID}`;
+            document.body.appendChild(iframe);
+            
+            // 监听消息
+            window.addEventListener('message', function(event) {
+                if (event.data.type === 'GIST_DATA') {
+                    processGistData(event.data.data);
+                    document.body.removeChild(iframe);
+                } else if (event.data.type === 'GIST_ERROR') {
+                    document.getElementById('data').innerHTML = 
+                        '<div style="color: red; padding: 10px;">❌ 加载失败: ' + event.data.error + '</div>';
+                    document.body.removeChild(iframe);
+                }
+            });
+        }
         
-        async function loadData() {
+        function processGistData(gistData) {
             try {
-                // 频率限制检查
-                if (requestCount > 20) {
-                    console.warn('请求频率限制，请稍后重试');
-                    return;
-                }
-                requestCount++;
-                
-                document.getElementById('data').innerHTML = '<p>加载中...</p>';
-                
-                const response = await fetch(GIST_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP错误: ${response.status}`);
-                }
-                
-                const gistData = await response.json();
                 const filename = Object.keys(gistData.files)[0];
                 const content = gistData.files[filename].content;
                 const messages = JSON.parse(content);
                 
-                // 更新界面
                 document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
                 document.getElementById('totalCount').textContent = messages.length;
                 if (messages.length > 0) {
@@ -113,12 +111,13 @@
                 
                 displayData(messages);
             } catch (error) {
-                console.error('加载数据失败:', error);
                 document.getElementById('data').innerHTML = 
-                    '<div style="color: red; padding: 10px;">❌ 加载失败: ' + error.message + '</div>';
+                    '<div style="color: red; padding: 10px;">❌ 数据处理错误: ' + error.message + '</div>';
             }
         }
         
+        // 其余函数保持不变...
+                
         function displayData(messages) {
             const container = document.getElementById('data');
             
