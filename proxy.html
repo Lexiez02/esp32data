@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据代理</title>
+</head>
+<body>
+    <script>
+        // 从URL参数获取Gist ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const gistId = urlParams.get('gist_id');
+        
+        if (gistId) {
+            fetch(`https://api.github.com/gists/${gistId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 将数据传回父窗口
+                    window.parent.postMessage({
+                        type: 'GIST_DATA',
+                        data: data
+                    }, '*');
+                })
+                .catch(error => {
+                    window.parent.postMessage({
+                        type: 'GIST_ERROR', 
+                        error: error.toString()
+                    }, '*');
+                });
+        }
+    </script>
+</body>
+</html>
