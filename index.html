@@ -63,12 +63,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>📡 ESP32数据接收历史</h1>
+        <h1>ESP32数据接收历史</h1>
         <div class="stats">
             <div class="stat-item">总数据量: <span id="totalCount">0</span> 条</div>
             <div class="stat-item">最新数据: <span id="latestTime">-</span></div>
         </div>
-        <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+        <button class="refresh-btn" onclick="loadData()">刷新数据</button>
         <div class="last-updated">最后更新: <span id="lastUpdated">-</span></div>
     </div>
     <div id="data"></div>
@@ -91,7 +91,7 @@
                     document.body.removeChild(iframe);
                 } else if (event.data.type === 'GIST_ERROR') {
                     document.getElementById('data').innerHTML = 
-                        '<div style="color: red; padding: 10px;">❌ 加载失败: ' + event.data.error + '</div>';
+                        '<div style="color: red; padding: 10px;">加载失败: ' + event.data.error + '</div>';
                     document.body.removeChild(iframe);
                 }
             });
@@ -112,11 +112,10 @@
                 displayData(messages);
             } catch (error) {
                 document.getElementById('data').innerHTML = 
-                    '<div style="color: red; padding: 10px;">❌ 数据处理错误: ' + error.message + '</div>';
+                    '<div style="color: red; padding: 10px;">数据处理错误: ' + error.message + '</div>';
             }
         }
         
-        // 其余函数保持不变...
                 
         function displayData(messages) {
             const container = document.getElementById('data');
@@ -128,7 +127,7 @@
             
             container.innerHTML = messages.map(msg => `
                 <div class="message">
-                    <div class="timestamp">📅 ${msg.timestamp}</div>
+                    <div class="timestamp">${msg.timestamp}</div>
                     <div class="data-content">
                         ${formatData(msg.data)}
                     </div>
