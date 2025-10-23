@@ -125,7 +125,10 @@
                 return;
             }
             
-            container.innerHTML = messages.map(msg => `
+            // 反转数组，让最新数据显示在最上面
+            const reversedMessages = [...messages].reverse();
+            
+            container.innerHTML = reversedMessages.map(msg => `
                 <div class="message">
                     <div class="timestamp">${msg.timestamp}</div>
                     <div class="data-content">
