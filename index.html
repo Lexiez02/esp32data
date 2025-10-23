@@ -116,23 +116,21 @@
             }
         }
         
-                
-        function displayData(messages) {
-            const container = document.getElementById('data');
+
+        function displayData(data) {
+            const tableBody = document.getElementById('dataBody');
+            tableBody.innerHTML = '';
             
-            if (messages.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">暂无数据，等待ESP32发送数据...</div>';
-                return;
-            }
-            
-            container.innerHTML = messages.map(msg => `
-                <div class="message">
-                    <div class="timestamp">${msg.timestamp}</div>
-                    <div class="data-content">
-                        ${formatData(msg.data)}
-                    </div>
-                </div>
-            `).join('');
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.timestamp || row.time || ''}</td>
+                    <td>${row.temperature || ''}</td>
+                    <td>${row.humidity || ''}</td>
+                `;
+                // 使用 unshift 让新数据插入到顶部
+                tableBody.insertBefore(tr, tableBody.firstChild);
+            });
         }
         
         function formatData(data) {
